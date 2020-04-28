@@ -2,7 +2,7 @@ This is a very simple golang program to upload a small file into an Azure Storag
 It uses a Device Token and Azure Active Directory to authenticate the user.  The following
 are required on the command line.
 
-
+```
 Usage of simpleaad:
   -appid string
         App Registration Id (Required)
@@ -14,4 +14,4 @@ Usage of simpleaad:
         Azure SubscriptionId (Required)
   -tenantid string
         Tenant Id (Required)
-
+```
