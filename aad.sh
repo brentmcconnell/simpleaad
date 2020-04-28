@@ -1,8 +1,9 @@
 #!/bin/bash 
 
-# Find IDs for Microsoft services
+# Find IDs for Microsoft services that require permissions
 # az ad sp list --filter "displayName eq 'Azure Storage'" -o json --all 
 # az ad sp list --filter "displayName eq 'Microsoft Graph'" -o json --all 
+# az ad sp list --filter "displayName eq 'Windows Azure Service Management API'" -o json --all 
 
 command -v az 2&> /dev/null
 if [ $? -ne 0 ]; then
@@ -16,30 +17,42 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-RND=$(echo $RANDOM | grep -o ..$)
+RND=$(echo $RANDOM | grep -o ...$)
 GRAPH_ID=00000003-0000-0000-c000-000000000000
 STORAGE_ID=e406a681-f3d4-42a8-90b6-c2b029497af1
+COMPUTE_ID=797f4846-ba00-4fd7-ba43-dac1f8f63013
 OPEN_ID=$(az ad sp show --id $GRAPH_ID --query "oauth2Permissions[?value=='openid'].id | [0]" -otsv)
 PROFILE_ID=$(az ad sp show --id $GRAPH_ID --query "oauth2Permissions[?value=='profile'].id | [0]" -otsv)
 USER_READ_ID=$(az ad sp show --id $GRAPH_ID --query "oauth2Permissions[?value=='User.Read'].id | [0]" -otsv)
-USERIM_ID=$(az ad sp show --id $STORAGE_ID --query "oauth2Permissions[?value=='user_impersonation'].id | [0]" -otsv)
+SUSERIM_ID=$(az ad sp show --id $STORAGE_ID --query "oauth2Permissions[?value=='user_impersonation'].id | [0]" -otsv)
+CUSERIM_ID=$(az ad sp show --id $COMPUTE_ID --query "oauth2Permissions[?value=='user_impersonation'].id | [0]" -otsv)
 REDIRECT_URL="https://login.microsoftonline.com/common/oauth2/nativeclient"
-DISPLAY_NAME=store-aad-$RND
+DISPLAY_NAME=app-aad-$RND
 
-echo "Microsoft Graph ID: $GRAPH_ID"
-echo "Openid:             $OPEN_ID"
-echo "Profile:            $PROFILE_ID"
-echo "User.Read:          $USER_READ_ID"
-echo "Azure Storage ID:   $STORAGE_ID"
-echo "user_impersonation: $USERIM_ID"
-echo -e "\nDISPLAY_NAME:    $DISPLAY_NAME\n" 
+echo "Microsoft Graph ID:           $GRAPH_ID"
+echo "Openid:                       $OPEN_ID"
+echo "Profile:                      $PROFILE_ID"
+echo "User.Read:                    $USER_READ_ID"
+echo "Azure Storage ID:             $STORAGE_ID"
+echo "storage user_impersonation:   $SUSERIM_ID"
+echo "compute user impersonation:   $CUSERIM_ID"
+echo -e "\nDISPLAY_NAME:                $DISPLAY_NAME\n" 
 
 JSON=$(cat <<-EOF
 [{
+  "resourceAppId": "$COMPUTE_ID",
+  "resourceAccess": [
+    {
+      "id": "${CUSERIM_ID}",
+      "type": "Scope"
+    }
+  ] 
+},
+{
   "resourceAppId": "$STORAGE_ID",
   "resourceAccess": [
     {
-      "id": "${USERIM_ID}",
+      "id": "${SUSERIM_ID}",
       "type": "Scope"
     }
   ] 
@@ -107,3 +120,4 @@ az role assignment create \
 echo "APPID:            $APP_ID"
 echo "TENANTID:         $TENANT_ID"
 echo "SUBSCRIPTIONID:   $SUB_ID"
+echo "DISPLAY NAME:     $DISPLAY_NAME"
