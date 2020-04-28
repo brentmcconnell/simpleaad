@@ -84,7 +84,7 @@ func init() {
 }
 
 func main() {
-	// Create a file in container1 of storageAcct1
+	// Create a file in container of store
 	createFileinStorageAcct(*store, *container)
 
 }
@@ -105,6 +105,7 @@ func createFileinStorageAcct(storageAcct string, container string) {
 		azblob.PipelineOptions{},
 	)
 
+	// Hardcoded for Azure commercial.  Could be adjusted for MAG
 	URL, err := url.Parse(fmt.Sprintf("https://%s.blob.core.windows.net/%s", storageAcct, container))
 	if err != nil {
 		log.Fatal(err)
