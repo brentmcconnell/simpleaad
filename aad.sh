@@ -1,5 +1,9 @@
 #!/bin/bash 
 
+# Find IDs for Microsoft services
+# az ad sp list --filter "displayName eq 'Azure Storage'" -o json --all 
+# az ad sp list --filter "displayName eq 'Microsoft Graph'" -o json --all 
+
 command -v az 2&> /dev/null
 if [ $? -ne 0 ]; then
     echo "ERROR: Requires Azure CLI (az).  Aborting..."
