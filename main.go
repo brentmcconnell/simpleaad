@@ -69,14 +69,19 @@ func init() {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
-
+	// Setup a new Device Token configuration
 	dfc := auth.NewDeviceFlowConfig(*appId, *tenant)
+	
+	// Set the resource for the storage endpoint
 	dfc.Resource = "https://storage.azure.com/"
+	
+	// Prompt user for authentication
 	storageToken, err := dfc.ServicePrincipalToken()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Setup a storage Token credential to use for upload
 	credential = azblob.NewTokenCredential(storageToken.OAuthToken(), nil)
 	if err != nil {
 		log.Fatalf("Failed to get OAuth config: %v", err)
